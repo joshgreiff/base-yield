@@ -2,13 +2,13 @@
 
 Programmable Digital Money Built on Bitcoin Credit.
 
-BaseYield is an early-stage prototype exploring a Layer-3 financial product stack on Base:
+BaseYield is a Layer-3 financial product prototype built on a new stack:
 
 - **Bitcoin** as digital capital
 - **STRC** as digital credit
-- **BaseYield** as programmable digital money and digital yield
+- **BaseYield** as programmable onchain wrappers on Base for digital money and digital yield
 
-This repository is built for product exploration, architecture clarity, and accelerator-grade communication. It is **not** a production financial product.
+This repository is built for product exploration, architecture clarity, and accelerator-grade communication. It is **not** a production financial product and all outputs shown are simulated.
 
 ## Overview
 
@@ -23,6 +23,12 @@ The initial prototype demonstrates two modes:
 
 - **Money Mode**: lower yield, higher stability, daily liquidity profile
 - **Yield Mode**: higher yield, higher volatility/lockup profile
+
+## Stack Diagram
+
+The thesis in one view:
+
+![BaseYield stack diagram](apps/web/public/architecture-diagram.svg)
 
 ## The Thesis
 
@@ -104,6 +110,8 @@ Not yet implemented:
 4. **Phase 4**: Regulated wrapper and distribution exploration
 
 More detail: `docs/roadmap.md`
+
+Application-facing narrative: `docs/application-thesis.md`
 
 ## Local Development
 

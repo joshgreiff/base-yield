@@ -1,0 +1,14 @@
+.DS_Store
+node_modules
+.next
+dist
+out
+coverage
+artifacts
+cache
+typechain-types
+*.log
+.env
+.env.local
+pnpm-lock.yaml
+yarn.lock

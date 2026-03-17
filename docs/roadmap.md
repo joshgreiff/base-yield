@@ -15,6 +15,7 @@
 - Connect dashboard to testnet vault state
 - Add event-driven accounting updates
 - Introduce scenario simulator for reserve and redemption behavior
+- Add optional payout preference simulation (USD payout vs BTC accumulation)
 
 ## Phase 3 - Integration Exploration
 
@@ -22,6 +23,7 @@
 - Explore pricing and reconciliation pipelines
 - Define operational controls for liquidity windows and buffers
 - Expand monitoring and transparency framework
+- Explore user-controlled yield conversion rails for optional BTC accumulation
 
 ## Phase 4 - Regulated Wrapper Exploration
 

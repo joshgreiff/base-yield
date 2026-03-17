@@ -93,15 +93,15 @@ export default function HomePage() {
         <article className="rounded-xl border border-mint/30 bg-mint/10 p-6">
           <h3 className="text-xl font-semibold text-mint">Money Mode</h3>
           <p className="mt-2 text-sm text-slate-200">
-            Lower yield, higher stability profile with stronger reserve posture and daily liquidity
-            orientation.
+            Targeted 8-10% simulated APY with higher reserve posture, lower volatility, and daily
+            liquidity orientation.
           </p>
         </article>
         <article className="rounded-xl border border-warm/30 bg-warm/10 p-6">
           <h3 className="text-xl font-semibold text-warm">Yield Mode</h3>
           <p className="mt-2 text-sm text-slate-200">
-            Higher yield profile with more concentrated STRC exposure and a tolerance for higher
-            volatility and lockup dynamics.
+            Targeted 15-25% simulated APY with higher STRC concentration and optional structured
+            overlays that increase risk and return variability.
           </p>
         </article>
       </section>

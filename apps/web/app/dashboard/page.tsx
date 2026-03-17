@@ -2,23 +2,43 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { listProfiles, simulateMode } from "@/lib/simulation";
+import { listProfiles, simulateBtcAccumulation, simulateMode } from "@/lib/simulation";
 
-const exposureData = [
-  { label: "STRC Core", value: 76, color: "bg-blue-400" },
-  { label: "Reserve Sleeve", value: 12, color: "bg-emerald-400" },
-  { label: "Tactical Yield", value: 8, color: "bg-amber-400" },
-  { label: "Ops Buffer", value: 4, color: "bg-slate-400" }
-];
+const exposureByMode = {
+  money: [
+    { label: "STRC Core", value: 70, color: "bg-blue-400" },
+    { label: "Treasury/Cash Sleeve", value: 20, color: "bg-emerald-400" },
+    { label: "Reserve Buffer", value: 10, color: "bg-slate-400" }
+  ],
+  yield: [
+    { label: "STRC Core", value: 90, color: "bg-blue-400" },
+    { label: "Reserve Buffer", value: 5, color: "bg-emerald-400" },
+    { label: "Enhanced Yield Sleeve", value: 5, color: "bg-amber-400" }
+  ]
+} as const;
 
 const navSeries = [100.1, 99.9, 100.2, 100.05, 100.15, 100.03, 99.98, 100.12];
+const samplePositionUsd = 100_000;
+const simulatedBtcPriceUsd = 85_000;
 
 export default function DashboardPage() {
   const [mode, setMode] = useState<"money" | "yield">("money");
   const [reserveAdjust, setReserveAdjust] = useState(0);
+  const [payoutPreference, setPayoutPreference] = useState<"usd" | "btc">("usd");
+  const [btcConvertPercent, setBtcConvertPercent] = useState(35);
   const profiles = listProfiles();
   const selected = profiles.find((p) => p.id === mode) ?? profiles[0];
   const result = useMemo(() => simulateMode(mode, reserveAdjust), [mode, reserveAdjust]);
+  const btcSimulation = useMemo(
+    () =>
+      simulateBtcAccumulation(
+        samplePositionUsd,
+        result.apy,
+        payoutPreference === "btc" ? btcConvertPercent : 0,
+        simulatedBtcPriceUsd
+      ),
+    [btcConvertPercent, payoutPreference, result.apy]
+  );
 
   return (
     <main className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-6 pb-16 pt-8 md:px-10">
@@ -40,9 +60,13 @@ export default function DashboardPage() {
         <StatCard label="Estimated APY" value={`${result.apy.toFixed(2)}%`} detail={selected.name} />
         <StatCard label="Reserve Ratio" value={`${result.reserveRatio.toFixed(1)}%`} detail="Policy-adjusted" />
         <StatCard
-          label="NAV Stability Band"
-          value={`${result.navBand[0].toFixed(2)} - ${result.navBand[1].toFixed(2)}`}
-          detail="Index basis (100)"
+          label="BTC Accumulation (12m sim)"
+          value={`${btcSimulation.estimatedBtcAccumulated.toFixed(4)} BTC`}
+          detail={
+            payoutPreference === "btc"
+              ? `${btcConvertPercent}% of yield converted`
+              : "Disabled (USD payout selected)"
+          }
         />
       </section>
 
@@ -90,10 +114,70 @@ export default function DashboardPage() {
             </p>
           </div>
 
+          <div className="mt-5 rounded-lg border border-edge bg-slate-950/40 p-4">
+            <div className="flex items-center justify-between text-sm text-slate-300">
+              <span>Yield payout preference (optional)</span>
+            </div>
+            <div className="mt-3 flex gap-2">
+              <button
+                type="button"
+                onClick={() => setPayoutPreference("usd")}
+                className={`rounded-lg px-3 py-2 text-sm font-medium transition ${
+                  payoutPreference === "usd"
+                    ? "bg-accent text-slate-950"
+                    : "border border-edge bg-slate-950/50 text-slate-200 hover:border-slate-500"
+                }`}
+              >
+                USD / Stable payout
+              </button>
+              <button
+                type="button"
+                onClick={() => setPayoutPreference("btc")}
+                className={`rounded-lg px-3 py-2 text-sm font-medium transition ${
+                  payoutPreference === "btc"
+                    ? "bg-accent text-slate-950"
+                    : "border border-edge bg-slate-950/50 text-slate-200 hover:border-slate-500"
+                }`}
+              >
+                Auto-convert yield to BTC
+              </button>
+            </div>
+            <div className="mt-4">
+              <div className="flex items-center justify-between text-xs text-slate-400">
+                <span>Yield converted to BTC</span>
+                <span>{payoutPreference === "btc" ? `${btcConvertPercent}%` : "0%"}</span>
+              </div>
+              <input
+                className="mt-2 w-full accent-accent disabled:opacity-50"
+                type="range"
+                min={0}
+                max={100}
+                step={5}
+                value={btcConvertPercent}
+                disabled={payoutPreference !== "btc"}
+                onChange={(event) => setBtcConvertPercent(Number(event.target.value))}
+              />
+            </div>
+            <p className="mt-2 text-xs text-slate-400">
+              Optional user-controlled setting. Simulates converting a share of yield into BTC and
+              does not change core vault allocations.
+            </p>
+          </div>
+
           <div className="mt-5 grid gap-3 md:grid-cols-3">
             <MiniCard label="Liquidity Profile" value={`${result.estimatedRedemptionHours}h est.`} note={result.liquidityLabel} />
-            <MiniCard label="Yield Profile" value={`${result.apy.toFixed(2)}%`} note="Simulated annualized output" />
+            <MiniCard
+              label="Yield Profile"
+              value={`${result.apy.toFixed(2)}%`}
+              note={`Range target: ${selected.targetRange}`}
+            />
             <MiniCard label="Volatility Profile" value={`${result.volatility.toFixed(2)}%`} note="Estimated annualized" />
+          </div>
+          <div className="mt-4 rounded-lg border border-edge bg-slate-950/40 p-3 text-xs text-slate-300">
+            Example using a ${samplePositionUsd.toLocaleString()} position at BTC price $
+            {simulatedBtcPriceUsd.toLocaleString()}: annual simulated yield $
+            {btcSimulation.annualYieldUsd.toLocaleString()} | converted $
+            {btcSimulation.annualYieldConvertedUsd.toLocaleString()}.
           </div>
         </article>
 
@@ -101,7 +185,7 @@ export default function DashboardPage() {
           <h2 className="text-lg font-semibold text-white">Exposure Breakdown</h2>
           <p className="mt-1 text-sm text-slate-300">Conceptual composition, not live allocations.</p>
           <div className="mt-4 space-y-3">
-            {exposureData.map((item) => (
+            {exposureByMode[mode].map((item) => (
               <div key={item.label}>
                 <div className="mb-1 flex justify-between text-xs text-slate-300">
                   <span>{item.label}</span>
@@ -113,13 +197,18 @@ export default function DashboardPage() {
               </div>
             ))}
           </div>
+          <div className="mt-4 rounded-lg border border-edge bg-slate-950/50 p-3">
+            <p className="text-xs uppercase tracking-wide text-slate-400">Yield Source</p>
+            <p className="mt-1 text-sm text-slate-200">{selected.yieldSource}</p>
+          </div>
         </article>
       </section>
 
       <section className="rounded-xl border border-edge bg-slate-900/70 p-5">
         <h2 className="text-lg font-semibold text-white">Simulated NAV Trend (Placeholder)</h2>
         <p className="mt-1 text-sm text-slate-300">
-          Conceptual chart only. Live feeds and reconciliation are not integrated in this prototype.
+          Conceptual chart only. Live feeds and reconciliation are not integrated in this
+          prototype.
         </p>
         <SimpleSeriesChart values={navSeries} />
       </section>
@@ -130,7 +219,7 @@ export default function DashboardPage() {
             <div className="flex items-start justify-between gap-3">
               <h3 className="text-xl font-semibold text-white">{profile.name}</h3>
               <span className="rounded-full border border-edge bg-slate-800 px-2 py-1 text-xs text-slate-300">
-                Target APY {profile.targetApy.toFixed(1)}%
+                Target APY {profile.targetRange}
               </span>
             </div>
             <p className="mt-2 text-sm text-slate-300">{profile.strategy}</p>
@@ -141,6 +230,7 @@ export default function DashboardPage() {
               <Detail label="Liquidity Terms">{profile.liquidity}</Detail>
               <Detail label="Reserve Buffer">{profile.reserveBuffer}% baseline</Detail>
               <Detail label="STRC Exposure">{profile.strcExposure}%</Detail>
+              <Detail label="Yield Source">{profile.yieldSource}</Detail>
             </dl>
           </article>
         ))}
@@ -148,7 +238,8 @@ export default function DashboardPage() {
 
       <footer className="rounded-xl border border-edge bg-slate-900/60 p-4 text-xs leading-6 text-slate-400">
         Prototype notice: all values shown are simulated for concept demonstration and do not
-        represent live asset data, custody integration, or production risk controls.
+        represent live asset data, custody integration, production risk controls, or automated BTC
+        conversion execution.
       </footer>
     </main>
   );

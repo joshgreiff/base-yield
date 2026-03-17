@@ -21,8 +21,13 @@ BaseYield applies that same framing to crypto-native infrastructure:
 
 The initial prototype demonstrates two modes:
 
-- **Money Mode**: lower yield, higher stability, daily liquidity profile
-- **Yield Mode**: higher yield, higher volatility/lockup profile
+- **Money Mode**: simulated 8-10% target range, higher stability, daily liquidity profile
+- **Yield Mode**: simulated 15-25% target range, higher volatility/lockup profile
+
+Future optional feature direction:
+
+- **Bitcoin accumulation engine (optional)**: user-controlled setting to convert a chosen share of
+  yield into BTC over time
 
 ## Stack Diagram
 
@@ -49,9 +54,10 @@ In this model, Base is the programmable distribution layer that can express thes
   - 70% STRC exposure
   - 20% cash or treasury-style sleeve
   - 10% reserve buffer
-- Lower target APY
+- Simulated target APY range: 8-10%
 - Lower volatility band
 - Higher redemption flexibility
+- Yield source: base STRC carry + reserve sleeve
 
 ### Yield Mode
 
@@ -59,9 +65,10 @@ In this model, Base is the programmable distribution layer that can express thes
   - 90% STRC exposure
   - 5% reserve buffer
   - 5% tactical yield sleeve
-- Higher target APY
+- Simulated target APY range: 15-25%
 - Higher volatility band
 - More constrained liquidity profile
+- Yield source: base STRC carry + optional leverage/options overlays
 
 ## Why Base
 

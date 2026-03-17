@@ -44,6 +44,14 @@ export default function HomePage() {
             Open Prototype Dashboard
           </Link>
           <a
+            href="https://youtu.be/smlZdop6M3U"
+            target="_blank"
+            rel="noreferrer"
+            className="rounded-lg border border-edge bg-slate-900/60 px-4 py-2 text-sm font-medium text-slate-200 transition hover:border-slate-500"
+          >
+            Watch Intro Video
+          </a>
+          <a
             href="https://base.org"
             target="_blank"
             rel="noreferrer"
